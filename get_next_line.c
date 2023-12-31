@@ -6,7 +6,7 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 14:03:43 by suminkwon         #+#    #+#             */
-/*   Updated: 2023/12/31 08:36:13 by suminkwon        ###   ########.fr       */
+/*   Updated: 2023/12/31 09:12:09 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,11 @@ static char *join_str(char *previous_read, char *buffer) // \n나올때까지 �
 	// 	return (NULL);
 	// }
 
-	// if (!*buffer) // end of line.
-	// {
-	// 	printf("END OF THE LINE : buffer NULL : join_str function\n");
-	// 	return (NULL);
-	// }
+	if (!*buffer) // end of line.
+	{
+		printf("END OF THE LINE : buffer NULL : join_str function\n");
+		return (NULL);
+	}
 	// buffer_size = ft_strlen(previous_read) + BUFFER_SIZE;
 	// ft_strlcat(previous_read, buffer, buffer_size + 1);
 	// printf("previous_read : %s\nbuffer : %s\n", previous_read, buffer);
@@ -81,7 +81,7 @@ static char *find_newline(char **previous_read, int fd)
 	int readsize;
 
 	readsize = 1;
-	while (readsize && !ft_strchr(*previous_read, '\n'))
+	while (readsize > 0 && !ft_strchr(*previous_read, '\n'))
 	{
 		buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (!buffer)
@@ -92,7 +92,7 @@ static char *find_newline(char **previous_read, int fd)
 		// printf("\nread\n\n");
 		readsize = read(fd, buffer, BUFFER_SIZE); // 버퍼안에 읽은게 들어가겠지
 		// printf("readsize : %d\n", readsize);
-		if (readsize == -1) //|| readsize == 0)
+		if (readsize == -1)
 		{
 			free_one(&buffer);
 			printf("read()function has error which readsize is negative number in find_newline function\n");
@@ -104,7 +104,15 @@ static char *find_newline(char **previous_read, int fd)
 		// 	free_one(&buffer);
 		// 	return (NULL);
 		// }
-		buffer[readsize] = '\0';
+		if (!*buffer) // end of line.
+		{
+			printf("END OF THE LINE : buffer NULL : join_str function\n");
+			return (NULL);
+		}
+		if (*buffer == '\n' && readsize == 0)
+			buffer[1] = '\0';
+		else if (readsize != 0)
+			buffer[readsize] = '\0';
 		// printf("buffer : %s\n", buffer);
 		*previous_read = join_str(*previous_read, buffer);
 		// printf("annnna\n");
@@ -115,32 +123,38 @@ static char *find_newline(char **previous_read, int fd)
 
 static char *store_line(char **previous_read)
 {
-	char			*result;
+	char			*temp;
 	char			*new_previous_read;
 	unsigned int	start;
 	size_t 			len;
 
 	start = ft_strchr(*previous_read, '\n') + 1;
 	len = ft_strlen(*previous_read) - (start);
-	result = (char *)malloc(start + 1);
-	if (!result)
+	// result = (char *)malloc(start + 1);
+	// if (!result)
+	// {
+	// 	printf("ERROR in result malloc in the store_line function\n");
+	// 	return (NULL);
+	// }
+	// ft_strlcpy(result, *previous_read, start + 1);
+	temp = NULL;
+	if ((*previous_read)[start - 1] == '\n')
 	{
-		printf("ERROR in result malloc in the store_line function\n");
-		return (NULL);
+		temp = ft_substr(*previous_read, 0, start);
+		new_previous_read = ft_substr(*previous_read, start, len);
+		if (!new_previous_read)
+		{
+			printf("Error in mallocing new_previous_read in store_line function\n");
+			return (NULL);
+		}
+		free_one(&(*previous_read));
+		*previous_read = new_previous_read;
 	}
-	ft_strlcpy(result, *previous_read, start + 1);
-	new_previous_read = ft_substr(*previous_read, start, len);
-	if (!new_previous_read)
-	{
-		printf("Error in mallocing new_previous_read in store_line function\n");
-		return (NULL);
-	}
-	*previous_read = new_previous_read;
 	// printf("result in storline : %s\n", result);
 	// printf("previous_read in storline : %s\n", *previous_read);
 	// if (!result[previous_read_size])
 	// 	result[previous_read_size] = '\n';
-	return (result);
+	return (temp);
 }
 
 char *get_next_line(int fd)

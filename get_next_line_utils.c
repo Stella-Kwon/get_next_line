@@ -6,7 +6,7 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 14:03:40 by suminkwon         #+#    #+#             */
-/*   Updated: 2023/12/28 13:15:27 by suminkwon        ###   ########.fr       */
+/*   Updated: 2023/12/31 08:50:42 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ char *ft_substr(char const *s, unsigned int start, size_t len)
 	while (i < min)
 		res[i++] = s[start++];
 	res[i] = '\0';
-	free((char *)s);
-	s = NULL;
+	// free((char *)s);
+	// s = NULL;
 	return (res);
 }
 
