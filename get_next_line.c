@@ -6,7 +6,7 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 14:03:43 by suminkwon         #+#    #+#             */
-/*   Updated: 2023/12/31 09:12:09 by suminkwon        ###   ########.fr       */
+/*   Updated: 2024/01/02 21:42:12 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,137 +24,128 @@ static void free_one(char **buffer)
 
 static void free_both(char **previous_read, char **buffer)
 {
-	if (previous_read && *previous_read && buffer && *buffer)
+	if (previous_read && *previous_read)
 	{
 		free(*previous_read);
-		free(*buffer);
 		*previous_read = NULL;
+	}
+	if (buffer && *buffer)
+	{
+		free(*buffer);
 		*buffer = NULL;
 	}
 }
 
-static char *join_str(char *previous_read, char *buffer) // \n나올때까지 버퍼 모자르면 저장하기.
-{
-	// int buffer_size;
-	char *res;
-
-	// if (!previous_read)
-	// {
-	// 	printf("Error in previous_read malloc in the join_str function\n");
-	// 	return (NULL);
-	// }
-
-	if (!*buffer) // end of line.
-	{
-		printf("END OF THE LINE : buffer NULL : join_str function\n");
-		return (NULL);
-	}
-	// buffer_size = ft_strlen(previous_read) + BUFFER_SIZE;
-	// ft_strlcat(previous_read, buffer, buffer_size + 1);
-	// printf("previous_read : %s\nbuffer : %s\n", previous_read, buffer);
-	res = ft_strjoin(previous_read, buffer);
-	// printf("\nafter\n\n");
-	// printf("buffer: %s\n", buffer);
-	// size_t i = ft_strlen(buffer);
-	// printf("buffersize : %zu\n, buffer_size : %d\n", i, buffer_size);
-	// printf("res : %s\n",res);
-	if (!res)
-	{
-		free_both(&previous_read, &buffer);
-		return (NULL);
-	}
-	// free_one(&previous_read);
-	previous_read = res;
-	// printf("previous_read : %s\n", previous_read);
-	// if (!previous_read)
-	// {
-	// 	printf("Error in malloc ft_strjoin in str_join function\n");
-	// 	return (NULL);
-	// }
-	// printf("previous_read : %s\nbuffer : %s\n", previous_read, buffer);
-	return (previous_read);
-}
-
-static char *find_newline(char **previous_read, int fd)
+static char *find_newline(char *previous_read, int fd) // read fd and join previous_read + buffer
 {
 	char *buffer;
 	int readsize;
 
 	readsize = 1;
-	while (readsize > 0 && !ft_strchr(*previous_read, '\n'))
+	while (readsize && !ft_strchr(previous_read, '\n'))
 	{
 		buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (!buffer)
 		{
-			printf("Error in buffer malloc in the find_newline function\n");
+			// printf("Error in buffer malloc in the find_newline function\n");
 			return (NULL);
 		}
-		// printf("\nread\n\n");
-		readsize = read(fd, buffer, BUFFER_SIZE); // 버퍼안에 읽은게 들어가겠지
-		// printf("readsize : %d\n", readsize);
+		readsize = read(fd, buffer, BUFFER_SIZE);
 		if (readsize == -1)
 		{
-			free_one(&buffer);
-			printf("read()function has error which readsize is negative number in find_newline function\n");
+			free_both(&previous_read, &buffer);
+			// printf("read()function has error which readsize is negative number in find_newline function\n");
 			return (NULL);
 		}
-		// if (readsize == 0)// nl 만 있는걸 못읽어
-		// {
-		// 	printf("END OF THE LINE : buffer NULL : find_newline function\n");
-		// 	free_one(&buffer);
-		// 	return (NULL);
-		// }
-		if (!*buffer) // end of line.
-		{
-			printf("END OF THE LINE : buffer NULL : join_str function\n");
-			return (NULL);
-		}
-		if (*buffer == '\n' && readsize == 0)
-			buffer[1] = '\0';
-		else if (readsize != 0)
-			buffer[readsize] = '\0';
+		// if (!readsize) //해버리면 마지막 줄 프린팅이 안됌 ->NULL이라서 
+		// 	free_one(&previous_read);
+		// 	break;
+		buffer[readsize] = '\0';
 		// printf("buffer : %s\n", buffer);
-		*previous_read = join_str(*previous_read, buffer);
-		// printf("annnna\n");
+		// buffer malloc을 해줄필요없을때 해주고 싶지않아서 malloc을 while안에 둠
+		// 그렇지만 25줄 이상으로 위로 빼줘야 할수도 있음.
+		// 사실 readsize가 0이면 join할 필요도 없어서...
+		previous_read = ft_strjoin(previous_read, buffer);
+		// if (!previous_read)
+			// printf("Error in previous_read in the find_newline : ft_strjoin function\n");
 		free_one(&buffer);
 	}
-	return (*previous_read);
+	// printf("previous_read : %s\n", previous_read);
+	return (previous_read);
 }
 
-static char *store_line(char **previous_read)
+static char *store_line(char *previous_read)
 {
-	char			*temp;
-	char			*new_previous_read;
-	unsigned int	start;
-	size_t 			len;
+	char *line;
+	size_t i;
 
-	start = ft_strchr(*previous_read, '\n') + 1;
-	len = ft_strlen(*previous_read) - (start);
-	// result = (char *)malloc(start + 1);
-	// if (!result)
-	// {
-	// 	printf("ERROR in result malloc in the store_line function\n");
-	// 	return (NULL);
-	// }
-	// ft_strlcpy(result, *previous_read, start + 1);
-	temp = NULL;
-	if ((*previous_read)[start - 1] == '\n')
+	i = 0;
+	// printf("previous_read[i] : %c\n", previous_read[i]);
+	if (!previous_read[i])
 	{
-		temp = ft_substr(*previous_read, 0, start);
-		new_previous_read = ft_substr(*previous_read, start, len);
-		if (!new_previous_read)
-		{
-			printf("Error in mallocing new_previous_read in store_line function\n");
-			return (NULL);
-		}
-		free_one(&(*previous_read));
-		*previous_read = new_previous_read;
+		// printf("end of the file");
+		// free_one(&previous_read); //store_leftover에서 해주기 떄문에 안해주기
+		return (NULL);
 	}
-	// printf("result in storline : %s\n", result);
-	// printf("previous_read in storline : %s\n", *previous_read);
-	// if (!result[previous_read_size])
-	// 	result[previous_read_size] = '\n';
-	return (temp);
+	while (previous_read[i] != '\n' && previous_read[i] != '\0')
+		i++;
+	if (previous_read[i] == '\n')
+		i++;
+	line = (char *)malloc(sizeof(char) * (i + 1));
+	if (!line)
+	{
+		// printf("Error in mallocing line in store_line function\n");
+		free_one(&previous_read);
+		return (NULL);
+	}
+	i = 0;
+	while (previous_read[i] != '\n' && previous_read[i])
+	{
+		line[i] = previous_read[i];
+		i++;
+	}
+	if (previous_read[i] == '\n')
+	{
+		line[i] = previous_read[i];
+		i++;
+	}
+	line[i] = '\0';
+	// printf("line : %s\n", line);
+	return (line);
+}
+
+static char *store_leftover(char *previous_read)
+{
+	size_t i;
+	size_t j;
+	size_t len;
+	char *new_previous_read;
+
+	i = 0;
+	while (previous_read[i] != '\n' && previous_read[i] != '\0')
+		i++;
+	if (!previous_read[i])
+	{
+		// printf("last sentence : no new line\n");
+		free_one(&previous_read);
+		return (NULL);
+	}
+	len = (ft_strlen(previous_read) - i);
+	new_previous_read = (char *)malloc(sizeof(char) * len);
+	if (!new_previous_read)
+	{
+		// printf("Error malloc in store_leftover\n");
+		free_one(&previous_read);
+		return (NULL);
+	}
+	++i;
+	j = 0;
+	while (previous_read[i])
+		new_previous_read[j++] = previous_read[i++];
+	new_previous_read[j] = '\0';
+	free_one(&previous_read);
+	// printf("new previous_read : %s\n", new_previous_read);
+	return (new_previous_read);
 }
 
 char *get_next_line(int fd)
@@ -163,31 +154,20 @@ char *get_next_line(int fd)
 	char *each_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
-	{
-		if (previous_read)
-			free_one(&previous_read);
 		return (NULL);
-	}
-	//먼저 맬록해주면 free해줘야해
-	// if (!previous_read)
-	// {
-	// 	previous_read = (char *)malloc(1);
-	// 	if (!previous_read)
-	// 	{
-	// 		printf("Error in previous_read malloc in the join_str function\n");
-	// 		return (NULL);
-	// 	}
-	// 	previous_read[0] = '\0';
-	// }
-	// printf("previous_read : %s\n", previous_read);
-	previous_read = find_newline(&previous_read, fd);
-	
-	if (!previous_read) //한번에 관리해야지. 어떨때는 free해줘야하고 어떨땐 안해주게됌.
-		
+	previous_read = find_newline(previous_read, fd);
+	if (!previous_read)
 		return (NULL);
-	each_line = store_line(&previous_read);
-	if (!each_line)
-		return (NULL);
+	// printf("s\n");
+	each_line = store_line(previous_read);
+	// printf("aas\n");
+	// 어차피 리턴 eachline이라 안해줘도돼.
+	// if (!each_line)
+	// 	return (NULL);
 	// printf("previous_read after: %s\n", previous_read);
+	previous_read = store_leftover(previous_read);
+	// if (!previous_read)//여기서 해버리면 마지막 line이 리턴이 안됌.
+	//	return (NULL);
+	// printf("final line : %s\n", each_line);
 	return (each_line);
 }

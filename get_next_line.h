@@ -6,7 +6,7 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 14:04:18 by suminkwon         #+#    #+#             */
-/*   Updated: 2023/12/27 14:31:43 by suminkwon        ###   ########.fr       */
+/*   Updated: 2024/01/02 21:05:48 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ size_t ft_strlen(const char *s);
 char *ft_strdup(const char *s1);
 size_t ft_strlcpy(char *dst, const char *src, size_t dstsize);
 char *ft_strjoin(char *previous_read, char const *buffer);
-unsigned int ft_strchr(const char *s, int c);
-char *ft_substr(char const *s, unsigned int start, size_t len);
+char *ft_strchr(const char *s, int c);
 
 #endif
