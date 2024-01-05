@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
+/*   By: skwon2 <skwon2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 14:03:43 by suminkwon         #+#    #+#             */
-/*   Updated: 2024/01/05 02:08:00 by suminkwon        ###   ########.fr       */
+/*   Updated: 2024/01/05 15:38:00 by skwon2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static void *free_both(char **previous_read, char **buffer)
+static void	*free_both(char **previous_read, char **buffer)
 {
 	if (previous_read && *previous_read)
 	{
@@ -27,10 +27,10 @@ static void *free_both(char **previous_read, char **buffer)
 	return (NULL);
 }
 
-static char *find_newline(char *previous_read, int fd)
+static char	*find_newline(char *previous_read, int fd)
 {
-	char *buffer;
-	int readsize;
+	char	*buffer;
+	int		readsize;
 
 	readsize = 1;
 	while (readsize && !ft_strchr(previous_read, '\n'))
@@ -48,9 +48,9 @@ static char *find_newline(char *previous_read, int fd)
 	return (previous_read);
 }
 
-static int store_line(char *previous_read, char **line)
+static int	store_line(char *previous_read, char **line)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	if (!previous_read[i])
@@ -77,12 +77,12 @@ static int store_line(char *previous_read, char **line)
 	return (0);
 }
 
-static char *store_leftover(char *previous_read)
+static char	*store_leftover(char *previous_read)
 {
-	size_t i;
-	size_t j;
-	size_t len;
-	char *new_previous_read;
+	size_t	i;
+	size_t	j;
+	size_t	len;
+	char	*new_previous_read;
 
 	i = 0;
 	while (previous_read[i] != '\n' && previous_read[i] != '\0')
@@ -102,10 +102,10 @@ static char *store_leftover(char *previous_read)
 	return (new_previous_read);
 }
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-	static char *previous_read;
-	char *line;
+	static char	*previous_read;
+	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
