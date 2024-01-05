@@ -6,63 +6,87 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/24 11:13:36 by suminkwon         #+#    #+#             */
-/*   Updated: 2024/01/02 17:57:18 by suminkwon        ###   ########.fr       */
+/*   Updated: 2024/01/05 01:37:34 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h> // open 이랑 O_RDONLY and O_CREAT
 
 int main(void)
 {
-    int fd;
-    char *result;
+    int fd1;  
+    int fd2;
+    int fd3;
+    char *result1;
+    char *result2;
+    char *result3;
     int i;
-    // char buffer[42];
-    ssize_t bytesread;
-
-    fd = open("test1.txt", O_RDONLY | O_CREAT, 0644);
-    if (fd < 0)
+    
+    fd1 = open("test1.txt", O_RDONLY | O_CREAT, 0644);
+    if (fd1 < 0)
     {
-        printf("Error in opening\n");
+        printf("Error in opening fd1\n");
         return 0;
-    }
-    i = 1;
-    bytesread = 1; // 맨뒤로가기때문에 다시 닫고 오픈해줘야해
-
-    // printf("byteread:%zu\n", bytesread);
-
-    // close(fd);//닫으면 fd가 새롭게 열리기때문에 그냥 다시 open해도 처음으로 읽히기때문에
-
-    fd = open("test1.txt", O_RDONLY | O_CREAT, 0644);
-    if (fd < 0)
-    {
-        printf("Error in second opening\n");
-        return 0;
-    }
-
-    while (bytesread)
-    {
-        result = get_next_line(fd);
-        if (!result)
-        {
-            printf("no line in fd :: main.c\n");
-            result = NULL;
-            return (0);
-        }
-        printf("%d line : %s\n", i, result);
-        free(result);
-        result = NULL;
-        // bytesread = read(fd, buffer, sizeof(buffer));
-        // bytesread = read(fd, buffer, sizeof(buffer));
-        // printf("bytesread: %zd\n", bytesread);
-        i++;
     }
     
-    close(fd);
-    // fscanf(stdin, "c");
-    // system("leaks get_next_line");
-    return 0;
+    fd2 = open("test2.txt", O_RDONLY | O_CREAT, 0644);
+    if (fd2 < 0)
+    {
+        printf("Error in opening fd2\n");
+        return 0;
+    }
+    
+    fd3 = open("test3.txt", O_RDONLY | O_CREAT, 0644);
+    if (fd3 < 0)
+    {
+        printf("Error in opening fd3\n");
+        return 0;
+    }
+    
+    i = 1;
+    while (1)
+    {
+        result1 = get_next_line(fd1);
+        if (!result1)
+        {
+            printf("no line in fd1 :: main.c\n");
+            result1 = NULL;
+            return (0);
+        }
+        printf("result1 : %d line : %s\n", i, result1);
+
+        result2 = get_next_line(fd2);
+        if (!result2)
+        {
+            printf("no line in fd2 :: main.c\n");
+            result2 = NULL;
+            return (0);
+        }
+        printf("result2 : %d line : %s\n", i, result2);
+        
+        result3 = get_next_line(fd3);
+        if (!result3)
+        {
+            printf("no line in fd3 :: main.c\n");
+            result3 = NULL;
+            return (0);
+        }
+        
+        printf("result3 : %d line : %s\n", i, result3);
+        free(result1);
+        result1 = NULL;
+        free(result2);
+        result2 = NULL;
+        free(result3);
+        result3 = NULL;
+        i++;
+        printf("i : %d\n", i);
+    }
+    close(fd1);
+    close(fd2);
+    close(fd3);
+    
+    return (0);
 }
