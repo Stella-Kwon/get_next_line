@@ -6,12 +6,11 @@
 /*   By: suminkwon <suminkwon@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/02 22:14:07 by suminkwon         #+#    #+#             */
-/*   Updated: 2024/01/05 02:12:30 by suminkwon        ###   ########.fr       */
+/*   Updated: 2024/01/05 12:52:57 by suminkwon        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h> //지 워 야 해!
 
 static void	*free_both(char **previous_read, char **buffer)
 {
